@@ -36,6 +36,7 @@ int setup_plane_refs()
     strcpy(c, "local_vz");    if (!(plane_ref->vz  = XPLMFindDataRef(name))) return 0;
     strcpy(c, "psi");         if (!(plane_ref->hdg = XPLMFindDataRef(name))) return 0;
     if (!(plane_ref->gear= XPLMFindDataRef("sim/aircraft/parts/acf_gear_deploy"))) return 0;
+    if (!(plane_ref->beacon= XPLMFindDataRef("sim/cockpit/electrical/beacon_lights_on"))) return 0;
 
     /* AI aircraft */
     for (i=1; i<MAX_PLANES; i++)
@@ -43,13 +44,14 @@ int setup_plane_refs()
         c = name + sprintf(name, "sim/multiplayer/position/plane%d_", i);
         plane_ref = plane_refs + i;
 
-        strcpy(c, "x");           if (!(plane_ref->x   = XPLMFindDataRef(name))) return 0;
-        strcpy(c, "y");           if (!(plane_ref->y   = XPLMFindDataRef(name))) return 0;
-        strcpy(c, "z");           if (!(plane_ref->z   = XPLMFindDataRef(name))) return 0;
-        strcpy(c, "v_x");         if (!(plane_ref->vx  = XPLMFindDataRef(name))) return 0;
-        strcpy(c, "v_z");         if (!(plane_ref->vz  = XPLMFindDataRef(name))) return 0;
-        strcpy(c, "psi");         if (!(plane_ref->hdg = XPLMFindDataRef(name))) return 0;
-        strcpy(c, "gear_deploy"); if (!(plane_ref->gear= XPLMFindDataRef(name))) return 0;
+        strcpy(c, "x");                if (!(plane_ref->x   = XPLMFindDataRef(name))) return 0;
+        strcpy(c, "y");                if (!(plane_ref->y   = XPLMFindDataRef(name))) return 0;
+        strcpy(c, "z");                if (!(plane_ref->z   = XPLMFindDataRef(name))) return 0;
+        strcpy(c, "v_x");              if (!(plane_ref->vx  = XPLMFindDataRef(name))) return 0;
+        strcpy(c, "v_z");              if (!(plane_ref->vz  = XPLMFindDataRef(name))) return 0;
+        strcpy(c, "psi");              if (!(plane_ref->hdg = XPLMFindDataRef(name))) return 0;
+        strcpy(c, "gear_deploy");      if (!(plane_ref->gear= XPLMFindDataRef(name))) return 0;
+        strcpy(c, "beacon_lights_on"); if (!(plane_ref->beacon= XPLMFindDataRef(name))) return 0;
     }
 
     return -1;
@@ -222,9 +224,11 @@ int get_plane_pos(plane_pos_t *pos, int planeno)
 {
     plane_ref_t *plane_ref = plane_refs + planeno;
     float gear;
+    int beacon;
 
     assert(planeno < plane_count);
     if (!XPLMGetDatavf(plane_ref->gear, &gear, 0, 1) || gear!=1) return 0;	/* Not interested in airborne planes */
+    if (!XPLMGetDatai(plane_ref->beacon)) return 0;  /* Not interested in planes not moving but on the ground either */
 
     pos->p.x = XPLMGetDataf(plane_ref->x);
     pos->p.y = XPLMGetDataf(plane_ref->y);

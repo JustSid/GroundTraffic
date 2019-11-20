@@ -20,7 +20,7 @@ typedef __int32 int32_t;
 
 typedef struct
 {
-    XPLMDataRef x, y, z, vx, vz, hdg, gear; 
+    XPLMDataRef x, y, z, vx, vz, hdg, gear, beacon; 
 } plane_ref_t;
 
 typedef struct
